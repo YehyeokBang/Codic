@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codic - 코드 의도 백과사전</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1 class="logo">
+            Codic&nbsp;&nbsp;<span class="logo-icon">&lt;/&gt;</span>
+          </h1>
+          <p class="logo-subtitle">코드 의도 백과사전</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <h3>
+              프로젝트
+              <button
+                class="add-project-btn"
+                id="addProjectBtn"
+                title="프로젝트 추가"
+              >
+                +
+              </button>
+            </h3>
+            <div id="projectList">
+              <!-- 프로젝트 목록이 동적으로 렌더링됩니다 -->
+            </div>
+          </div>
+        </nav>
+
+        <button class="add-button" id="addNewBtn">
+          <span class="add-icon">+</span>
+          새 의도 기록
+        </button>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="main-header">
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="코드나 제목으로 검색..."
+              id="searchInput"
+            />
+            <button class="search-button">🔍</button>
+          </div>
+          <div class="header-actions">
+            <div id="tipSliderArea"></div>
+          </div>
+        </header>
+
+        <div class="content-area">
+          <div class="intentions-list" id="intentionsList">
+            <!-- 의도 기록들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal for adding/editing intentions -->
+    <div class="modal" id="intentionModal" aria-label="ESC로 닫기 가능">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">새 의도 기록</h2>
+          <button class="close-button" id="closeModal">&times;</button>
+        </div>
+        <form class="intention-form" id="intentionForm">
+          <div class="form-group">
+            <label for="title">제목</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="코드의 의도를 간단히 설명하세요"
+            />
+          </div>
+
+          <div class="form-group code-snippet-group" id="codeSnippetsGroup">
+            <!-- 코드 스니펫들이 동적으로 추가됨 -->
+          </div>
+          <button
+            type="button"
+            class="btn-secondary clickable"
+            id="addCodeSnippetBtn"
+            style="margin-bottom: 16px"
+          >
+            + 코드 스니펫 추가
+          </button>
+
+          <div class="form-group">
+            <label for="intention">의도 설명</label>
+            <textarea
+              id="intention"
+              name="intention"
+              required
+              placeholder="이 코드를 작성한 이유와 배경을 자세히 설명하세요"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-secondary clickable"
+              id="cancelBtn"
+            >
+              취소
+            </button>
+            <button type="submit" class="btn-primary clickable">다음</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2단계: 추가 정보 입력 모달 -->
+    <div class="modal" id="metaModal" aria-label="ESC로 닫기 가능">
+      <div class="modal-content meta-modal-content">
+        <div class="modal-header">
+          <h2>
+            추가 정보 입력 <span class="optional-label">(모두 선택 항목)</span>
+          </h2>
+          <button class="close-button" id="closeMetaModal">&times;</button>
+        </div>
+        <form class="meta-form" id="metaForm">
+          <div class="form-group">
+            <label for="commitHash"
+              >깃허브 커밋 해시
+              <span class="optional-label">(선택)</span></label
+            >
+            <input
+              type="text"
+              id="commitHash"
+              name="commitHash"
+              placeholder="예: a1b2c3d4"
+            />
+          </div>
+          <div class="form-group">
+            <label for="filePath"
+              >파일 경로 <span class="optional-label">(선택)</span></label
+            >
+            <input
+              type="text"
+              id="filePath"
+              name="filePath"
+              placeholder="예: src/main/java/com/example/Service.java"
+            />
+          </div>
+          <div class="form-group">
+            <label for="reference"
+              >참고 자료 <span class="optional-label">(선택)</span></label
+            >
+            <input
+              type="text"
+              id="reference"
+              name="reference"
+              placeholder="예: https://docs.spring.io/"
+            />
+          </div>
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-secondary clickable"
+              id="metaBackBtn"
+            >
+              이전
+            </button>
+            <button type="submit" class="btn-primary clickable">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 프로젝트 추가 모달 -->
+    <div class="modal" id="projectModal" aria-label="ESC로 닫기 가능">
+      <div class="modal-content project-modal-content">
+        <div class="modal-header">
+          <h2>프로젝트 추가</h2>
+          <button class="close-button" id="closeProjectModal">&times;</button>
+        </div>
+        <form class="project-form" id="projectForm">
+          <div class="form-group">
+            <label for="projectName">프로젝트 이름</label>
+            <input
+              type="text"
+              id="projectName"
+              name="projectName"
+              required
+              placeholder="프로젝트 이름"
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectLink">프로젝트 링크 (선택)</label>
+            <input
+              type="url"
+              id="projectLink"
+              name="projectLink"
+              placeholder="https://example.com"
+            />
+          </div>
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-secondary clickable"
+              id="projectCancelBtn"
+            >
+              취소
+            </button>
+            <button type="submit" class="btn-primary clickable">추가</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detailModal">
+      <div class="modal-content large">
+        <div class="modal-header">
+          <h2 id="detailTitle"></h2>
+          <button class="close-button" id="closeDetailModal">&times;</button>
+        </div>
+        <div class="detail-content" id="detailContent">
+          <!-- 상세 내용이 여기에 동적으로 추가됩니다 -->
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/kotlin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+  </body>
+</html>
