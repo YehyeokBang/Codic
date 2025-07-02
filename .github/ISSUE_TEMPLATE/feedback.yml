@@ -54,7 +54,7 @@ body:
   - type: textarea
     id: suggestion
     attributes:
-      label: 💡 이렇게 개선되면 더 좋을 것 같아요! [문제가 있는 경우에만 작성해주세요!]
+      label: 💡 이렇게 개선되면 더 좋을 것 같아요!
       description: 바라는 점이나 개선 아이디어가 있다면 알려주세요.
       placeholder: 예) 줄바꿈이 깨지지 않게 해주세요.
     validations:
