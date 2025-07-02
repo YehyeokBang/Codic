@@ -10,19 +10,41 @@ body:
         사용해주셔서 감사합니다. 아래 항목들을 편하게 작성해주시면 큰 도움이 됩니다.  
         부담 갖지 마시고 자유롭게 의견을 남겨주세요 🙌
 
-  - type: textarea
-    id: what-happened
+  - type: dropdown
+    id: is-resolved
     attributes:
-      label: 📷 어떤 현상이 발생했나요?
-      description: 구체적인 상황을 적어주시면 많은 도움이 됩니다. 가능하다면 스크린샷이나 오류 메시지를 첨부해주세요.
-      placeholder: 예) 코드를 붙여넣기 했는데 줄바꿈이 깨져서 보이지 않아요.
+      label: ✅ 이번 프로토타입이 문제를 해결한 것 같나요?
+      description: [문제나 불편함](https://github.com/YehyeokBang/Codic?tab=readme-ov-file#-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EC%9A%94)이 이번 프로토타입으로 얼마나 해결되었는지 선택해주세요.
+      options:
+        - 완전히 해결되었어요!
+        - 대부분 해결됐지만 약간 아쉬워요 🙂
+        - 별 차이를 못 느꼈어요 🤔
+        - 여전히 불편해요 😥
     validations:
       required: true
 
   - type: textarea
+    id: compliment
+    attributes:
+      label: 🌟 좋았던 점이나 인상 깊었던 부분이 있다면 자유롭게 작성해주세요!
+      description: 마음에 들었던 점이나 칭찬하고 싶은 부분이 있다면 큰 힘이 됩니다 😊
+      placeholder: 예) 다른 사람의 코드를 이해하기 어려울 때가 있었는데, Codic이 있다면 도움이 될 것 같아요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 📷 어떤 현상이 발생했나요? [문제가 있는 경우에만 작성해주세요!]
+      description: 구체적인 상황을 적어주시면 많은 도움이 됩니다. 가능하다면 스크린샷이나 오류 메시지를 첨부해주세요.
+      placeholder: 예) 코드를 붙여넣기 했는데 줄바꿈이 깨져서 보이지 않아요.
+    validations:
+      required: false
+
+  - type: textarea
     id: why-problem
     attributes:
-      label: ❓ 왜 문제라고 생각하셨나요?
+      label: ❓ 왜 문제라고 생각하셨나요? [문제가 있는 경우에만 작성해주세요!]
       description: 어떤 점에서 불편했는지, 사용하면서 어떤 생각이 드셨는지 알려주세요.
       placeholder: 예) 그냥 줄글로 보여서 코드를 읽기 힘들어요.
     validations:
@@ -31,17 +53,8 @@ body:
   - type: textarea
     id: suggestion
     attributes:
-      label: 💡 이렇게 개선되면 더 좋을 것 같아요!
+      label: 💡 이렇게 개선되면 더 좋을 것 같아요! [문제가 있는 경우에만 작성해주세요!]
       description: 바라는 점이나 개선 아이디어가 있다면 알려주세요.
       placeholder: 예) 줄바꿈이 깨지지 않게 해주세요.
-    validations:
-      required: false
-
-  - type: textarea
-    id: compliment
-    attributes:
-      label: 🌟 좋았던 점이나 인상 깊었던 부분이 있다면 자유롭게 작성해주세요!
-      description: 마음에 들었던 점이나 칭찬하고 싶은 부분이 있다면 큰 힘이 됩니다 😊
-      placeholder: 예) UI가 깔끔하고 직관적이어서 사용하기 편했어요.
     validations:
       required: false
