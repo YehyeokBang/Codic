@@ -931,12 +931,14 @@ const tips = [
   "코드 의도는 2단계로 입력하며, 추가정보(커밋, 파일, 참고)도 기록할 수 있다.",
 ];
 let tipIdx = 0;
+let tipAutoSlideTimer = null;
+
 function renderTipSlider() {
   const tipArea = document.getElementById("tipSliderArea");
   if (!tipArea) return;
   tipArea.innerHTML = `
     <div class="tip-slider">
-      <span class="tip-label">Tip</span>
+      <span class="tip-label" id="tipLabelBtn" style="cursor:pointer;">Tip</span>
       <div class="tip-content">${tips[tipIdx]}</div>
       <button class="tip-next-btn" id="tipNextBtn" aria-label="다음 꿀팁" title="다음 꿀팁 보기">&gt;</button>
     </div>
@@ -946,4 +948,56 @@ function renderTipSlider() {
     renderTipSlider();
     startTipAutoSlide();
   };
+  document.getElementById("tipLabelBtn").onclick = showAllTipsModal;
+}
+
+function startTipAutoSlide() {
+  if (tipAutoSlideTimer) clearTimeout(tipAutoSlideTimer);
+  tipAutoSlideTimer = setTimeout(() => {
+    tipIdx = (tipIdx + 1) % tips.length;
+    renderTipSlider();
+    startTipAutoSlide();
+  }, 5000);
+}
+
+// 팁 전체 보기 모달
+function showAllTipsModal() {
+  let modal = document.getElementById("allTipsModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "allTipsModal";
+    modal.className = "modal show";
+    modal.innerHTML = `
+      <div class="modal-content tips-modal-content">
+        <div class="modal-header">
+          <h2>모든 Tip</h2>
+          <button class="close-button" id="closeAllTipsModal">&times;</button>
+        </div>
+        <ul class="all-tips-list">
+          ${tips
+            .map(
+              (tip, i) =>
+                `<li class="all-tips-item${
+                  i === tipIdx ? " active" : ""
+                }">${tip}</li>`
+            )
+            .join("")}
+        </ul>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById("closeAllTipsModal").onclick = () => {
+      modal.classList.remove("show");
+      setTimeout(() => modal.remove(), 300);
+    };
+    // ESC로 닫기
+    function escHandler(e) {
+      if (e.key === "Escape") {
+        modal.classList.remove("show");
+        setTimeout(() => modal.remove(), 300);
+        window.removeEventListener("keydown", escHandler);
+      }
+    }
+    window.addEventListener("keydown", escHandler);
+  }
 }
