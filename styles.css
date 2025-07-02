@@ -1057,4 +1057,27 @@ body {
 @keyframes fadeInBg {
   from { background: rgba(33,37,41,0.01); }
   to { background: rgba(33,37,41,0.18); }
+}
+
+/* 커밋 해시 링크 스타일 */
+.commit-hash-footer, .meta-value .commit-hash-link {
+  max-width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.commit-hash-link {
+  color: #3182f6;
+  font-weight: 700;
+  text-decoration: underline;
+  font-family: 'Fira Mono', 'Menlo', 'Consolas', 'monospace';
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: color 0.15s;
+}
+.commit-hash-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
 } 

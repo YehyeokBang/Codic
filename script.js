@@ -31,6 +31,8 @@ public class VoteId {
     metadata:
       "커밋 해시: a1b2c3d4\n파일 경로: src/main/java/com/vote/entity/Vote.java\n참고: JPA 복합 키 설계 가이드",
     createdAt: "2024-01-15T10:30:00Z",
+    commitHash:
+      "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
   },
   {
     id: 2,
@@ -66,6 +68,8 @@ public class VoteAggregationService {
     metadata:
       "커밋 해시: e5f6g7h8\n파일 경로: src/main/java/com/vote/service/VoteAggregationService.java\nRedis 버전: 6.2",
     createdAt: "2024-01-16T14:20:00Z",
+    commitHash:
+      "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
   },
   {
     id: 3,
@@ -104,6 +108,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     metadata:
       "커밋 해시: i9j0k1l2\n파일 경로: src/main/java/com/vote/config/JwtAuthenticationFilter.java\nSpring Security 버전: 5.8",
     createdAt: "2024-01-17T09:15:00Z",
+    commitHash:
+      "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
   },
   {
     id: 4,
@@ -137,6 +143,8 @@ public class InventoryService {
     metadata:
       "커밋 해시: m3n4o5p6\n파일 경로: src/main/java/com/ecommerce/service/InventoryService.java\nJPA 버전: 2.7",
     createdAt: "2024-01-18T16:45:00Z",
+    commitHash:
+      "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
   },
   {
     id: 5,
@@ -168,6 +176,8 @@ public class ChatController {
     metadata:
       "커밋 해시: q7r8s9t0\n파일 경로: src/main/java/com/chat/controller/ChatController.java\nSpring WebSocket 버전: 5.3",
     createdAt: "2024-01-19T11:30:00Z",
+    commitHash:
+      "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
   },
 ];
 
@@ -225,6 +235,8 @@ window.addEventListener("keydown", function (e) {
 window.addEventListener("paste", function (e) {
   // 코드 스니펫 작성 모달이 열려 있으면 붙여넣기 이벤트 무시
   if (intentionModal.classList.contains("show")) return;
+  // 추가정보 입력 모달(metaModal)이 열려있으면 붙여넣기 무시 (복사/붙여넣기 허용)
+  if (metaModal.classList.contains("show")) return;
   const text = e.clipboardData.getData("text");
   if (text && text.match(/[{};=\n]/)) {
     if (metaModal.classList.contains("show")) closeMetaModalHandler();
@@ -404,6 +416,30 @@ function enableCodeCopy() {
   });
 }
 
+// 커밋 해시/URL 파싱 함수
+function parseCommitHash(raw) {
+  if (!raw) return { hash: "", url: "" };
+  let urlRaw = raw;
+  if (urlRaw.startsWith("@")) urlRaw = urlRaw.slice(1); // @ 제거
+  // URL에서 40자리 해시 추출
+  const urlMatch = urlRaw.match(/https?:\/\/[^\s]+\/commit\/([a-f0-9]{40})/);
+  if (urlMatch) {
+    return {
+      hash: urlMatch[1].slice(0, 7),
+      url: urlRaw,
+    };
+  }
+  // 그냥 7~40자리 해시만 있을 때
+  const hashMatch = urlRaw.match(/[a-f0-9]{7,40}/);
+  if (hashMatch) {
+    return {
+      hash: hashMatch[0].slice(0, 7),
+      url: "",
+    };
+  }
+  return { hash: raw, url: "" };
+}
+
 function renderIntentions() {
   const filtered = filterIntentions().sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -439,6 +475,18 @@ function renderIntentions() {
           intention.code
         )}</code></pre>`;
       }
+      // 커밋 해시/URL 파싱
+      const { hash, url } = parseCommitHash(
+        intention.commitHashUrl || intention.commitHash
+      );
+      let commitHashHtml = "";
+      if (hash && url) {
+        commitHashHtml = `<a href="${url}" class="commit-hash-link" target="_blank" title="${escapeHtml(
+          url
+        )}">${escapeHtml(hash)}</a>`;
+      } else if (hash) {
+        commitHashHtml = escapeHtml(hash);
+      }
       return `<div class="intention-card" data-id="${intention.id}">
       <div class="card-header">
         <div>
@@ -462,7 +510,7 @@ function renderIntentions() {
         <div class="card-intention">${escapeHtml(intention.intention)}</div>
       </div>
       <div class="card-footer">
-        <div></div>
+        <div class="commit-hash-footer">${commitHashHtml}</div>
         <div class="card-actions">
           <button class="card-action-btn" onclick="editIntention(${
             intention.id
@@ -493,9 +541,10 @@ function renderIntentions() {
       block.style.cursor = "pointer";
       block.title = "상세 보기";
     });
+  // 카드 전체 클릭 시 상세 팝업 (버튼 클릭 제외)
   document.querySelectorAll(".intention-card").forEach((card) => {
     card.addEventListener("click", function (e) {
-      if (e.target.closest(".card-actions")) return;
+      if (e.target.closest(".card-action-btn")) return;
       const id = parseInt(this.dataset.id);
       openDetailModal(id);
     });
@@ -596,6 +645,18 @@ function openDetailModal(id) {
       intention.code
     )}</code></pre>`;
   }
+  // 커밋 해시/URL 파싱
+  const { hash, url } = parseCommitHash(
+    intention.commitHashUrl || intention.commitHash
+  );
+  let commitHashHtml = "";
+  if (hash && url) {
+    commitHashHtml = `<a href="${url}" class="commit-hash-link" target="_blank" title="${escapeHtml(
+      url
+    )}">${escapeHtml(hash)}</a>`;
+  } else if (hash) {
+    commitHashHtml = escapeHtml(hash);
+  }
   document.getElementById("detailTitle").textContent = intention.title;
   document.getElementById("detailContent").innerHTML = `
     <div class="detail-section">
@@ -628,10 +689,8 @@ function openDetailModal(id) {
           <div class="meta-value">${formatDate(intention.createdAt)}</div>
         </div>
         ${
-          intention.commitHash
-            ? `<div class="meta-item"><div class="meta-label">깃허브 커밋 해시</div><div class="meta-value">${escapeHtml(
-                intention.commitHash
-              )}</div></div>`
+          commitHashHtml
+            ? `<div class="meta-item"><div class="meta-label">깃허브 커밋 해시</div><div class="meta-value">${commitHashHtml}</div></div>`
             : ""
         }
         ${
@@ -704,7 +763,22 @@ function handleFormStep1Submit(e) {
 function handleFormStep2Submit(e) {
   e.preventDefault();
   const formData = new FormData(metaForm);
-  tempIntentionData.commitHash = formData.get("commitHash");
+  // 커밋 해시 입력값이 깃허브 커밋 링크(@https://...)면 해시와 링크 분리
+  let commitHashRaw = formData.get("commitHash")?.trim() || "";
+  let commitHash = commitHashRaw;
+  let commitHashUrl = "";
+  if (commitHashRaw.startsWith("@http")) {
+    commitHashUrl = commitHashRaw.slice(1); // @ 제거
+    // 링크에서 마지막 / 뒤 40자(sha) 추출
+    const m = commitHashUrl.match(/([a-f0-9]{40})$/);
+    if (m) {
+      commitHash = m[1].slice(0, 7);
+    } else {
+      commitHash = commitHashUrl.slice(-7); // fallback
+    }
+  }
+  tempIntentionData.commitHash = commitHash;
+  tempIntentionData.commitHashUrl = commitHashUrl;
   tempIntentionData.filePath = formData.get("filePath");
   tempIntentionData.reference = formData.get("reference");
   if (editingIntentionId) {
