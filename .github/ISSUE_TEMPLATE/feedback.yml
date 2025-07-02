@@ -1,0 +1,47 @@
+name: 사용자 피드백
+description: 프로토타입을 사용하면서 느낀 점이나 개선 아이디어가 있다면 자유롭게 남겨주세요 🙏
+title: "사용자 피드백 요청: 소중한 의견을 들려주세요 🙏"
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        안녕하세요! 🧑‍💻  
+        사용해주셔서 감사합니다. 아래 항목들을 편하게 작성해주시면 큰 도움이 됩니다.  
+        부담 갖지 마시고 자유롭게 의견을 남겨주세요 🙌
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 📷 어떤 현상이 발생했나요?
+      description: 구체적인 상황을 적어주시면 많은 도움이 됩니다. 가능하다면 스크린샷이나 오류 메시지를 첨부해주세요.
+      placeholder: 예) 코드를 붙여넣기 했는데 줄바꿈이 깨져서 보이지 않아요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-problem
+    attributes:
+      label: ❓ 왜 문제라고 생각하셨나요?
+      description: 어떤 점에서 불편했는지, 사용하면서 어떤 생각이 드셨는지 알려주세요.
+      placeholder: 예) 그냥 줄글로 보여서 코드를 읽기 힘들어요.
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 💡 이렇게 개선되면 더 좋을 것 같아요!
+      description: 바라는 점이나 개선 아이디어가 있다면 알려주세요.
+      placeholder: 예) 줄바꿈이 깨지지 않게 해주세요.
+    validations:
+      required: false
+
+  - type: textarea
+    id: compliment
+    attributes:
+      label: 🌟 좋았던 점이나 인상 깊었던 부분이 있다면 자유롭게 작성해주세요!
+      description: 마음에 들었던 점이나 칭찬하고 싶은 부분이 있다면 큰 힘이 됩니다 😊
+      placeholder: 예) UI가 깔끔하고 직관적이어서 사용하기 편했어요.
+    validations:
+      required: false
