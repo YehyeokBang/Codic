@@ -5,6 +5,20 @@ let projects = [
   { key: "chat-app", name: "채팅 앱", link: "" },
 ];
 
+// 태그 데이터 (기본 + 커스텀)
+const DEFAULT_TAGS = [
+  { name: "domain", color: "#3182f6" },
+  { name: "performance", color: "#f59e42" },
+];
+let customTags = [
+  { name: "infra", color: "#6e56cf" },
+  { name: "refactor", color: "#00b894" },
+  { name: "bugfix", color: "#e74c3c" },
+];
+function getAllTags() {
+  return [...DEFAULT_TAGS, ...customTags];
+}
+
 // Mock Data - 태그 제거, 프로젝트는 key로 연결
 const mockIntentions = [
   {
@@ -33,6 +47,10 @@ public class VoteId {
     createdAt: "2024-01-15T10:30:00Z",
     commitHash:
       "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
+    tags: [
+      { name: "domain", color: "#3182f6" },
+      { name: "infra", color: "#6e56cf" },
+    ],
   },
   {
     id: 2,
@@ -70,6 +88,7 @@ public class VoteAggregationService {
     createdAt: "2024-01-16T14:20:00Z",
     commitHash:
       "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
+    tags: [{ name: "performance", color: "#f59e42" }],
   },
   {
     id: 3,
@@ -110,6 +129,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     createdAt: "2024-01-17T09:15:00Z",
     commitHash:
       "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
+    tags: [
+      { name: "refactor", color: "#00b894" },
+      { name: "domain", color: "#3182f6" },
+    ],
   },
   {
     id: 4,
@@ -145,6 +168,7 @@ public class InventoryService {
     createdAt: "2024-01-18T16:45:00Z",
     commitHash:
       "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
+    tags: [{ name: "bugfix", color: "#e74c3c" }],
   },
   {
     id: 5,
@@ -178,6 +202,10 @@ public class ChatController {
     createdAt: "2024-01-19T11:30:00Z",
     commitHash:
       "@https://github.com/YehyeokBang/Codic/commit/cdb3b5d410de2148af93a62fd8869d4fb2e45d26",
+    tags: [
+      { name: "performance", color: "#f59e42" },
+      { name: "infra", color: "#6e56cf" },
+    ],
   },
 ];
 
@@ -475,6 +503,19 @@ function renderIntentions() {
           intention.code
         )}</code></pre>`;
       }
+      // 태그 렌더링
+      let tagsHtml = "";
+      if (Array.isArray(intention.tags) && intention.tags.length) {
+        tagsHtml =
+          `<div class="card-tags">` +
+          intention.tags
+            .map(
+              (tag) =>
+                `<span class="card-tag"><span class="tag-color" style="background:${tag.color}"></span>${tag.name}</span>`
+            )
+            .join("") +
+          `</div>`;
+      }
       // 커밋 해시/URL 파싱
       const { hash, url } = parseCommitHash(
         intention.commitHashUrl || intention.commitHash
@@ -491,17 +532,20 @@ function renderIntentions() {
       <div class="card-header">
         <div>
           <div class="card-title">${escapeHtml(intention.title)}</div>
-          <span class="card-project">${
-            project
-              ? project.link
-                ? `<a href="${
-                    project.link
-                  }" class="project-link" target="_blank">${escapeHtml(
-                    project.name
-                  )}</a>`
-                : escapeHtml(project.name)
-              : ""
-          }</span>
+          <div class="card-meta-row">
+            <span class="card-project">${
+              project
+                ? project.link
+                  ? `<a href="${
+                      project.link
+                    }" class="project-link" target="_blank">${escapeHtml(
+                      project.name
+                    )}</a>`
+                  : escapeHtml(project.name)
+                : ""
+            }</span>
+            ${tagsHtml}
+          </div>
         </div>
         <div class="card-date">${formatDate(intention.createdAt)}</div>
       </div>
@@ -595,7 +639,6 @@ function openEditModal(id) {
   if (!intention) return;
   document.getElementById("modalTitle").textContent = "의도 기록 편집";
   intentionForm.reset();
-  // 여러 코드 스니펫 지원
   if (Array.isArray(intention.codeSnippets)) {
     codeSnippets = intention.codeSnippets.map((s) => ({ ...s }));
   } else {
@@ -604,7 +647,6 @@ function openEditModal(id) {
     ];
   }
   renderCodeSnippets();
-  // 제목/의도 설명 값도 세팅
   document.getElementById("title").value = intention.title || "";
   document.getElementById("intention").value = intention.intention || "";
   intentionModal.classList.add("show");
@@ -734,29 +776,22 @@ function closeDetailModalHandler() {
   detailModal.classList.remove("show");
 }
 
-// 1단계: 여러 코드 스니펫 저장
+// 1단계 → 2단계 이동 시 태그 선택 초기화
 function handleFormStep1Submit(e) {
   e.preventDefault();
-  if (!codeSnippets.length || codeSnippets.some((s) => !s.code.trim())) {
-    showNotification("코드 스니펫을 1개 이상 입력하세요.");
-    return;
-  }
   const formData = new FormData(intentionForm);
   tempIntentionData = {
     title: formData.get("title"),
-    codeSnippets: codeSnippets.map((s) => ({ ...s })),
     intention: formData.get("intention"),
-    project:
-      currentFilter.project !== "all"
-        ? currentFilter.project
-        : projects[0]?.key || "",
-    createdAt: new Date().toISOString(),
-    commitHash: "",
-    filePath: "",
-    reference: "",
+    codeSnippets: codeSnippets.map((s) => ({ ...s })),
+    project: projects[0]?.key || "",
   };
   intentionModal.classList.remove("show");
-  metaModal.classList.add("show");
+  openMetaModalWithTags(
+    editingIntentionId
+      ? currentIntentions.find((i) => i.id === editingIntentionId)?.tags || []
+      : []
+  );
 }
 
 // 2단계: 추가 정보 입력 (분리)
@@ -781,6 +816,7 @@ function handleFormStep2Submit(e) {
   tempIntentionData.commitHashUrl = commitHashUrl;
   tempIntentionData.filePath = formData.get("filePath");
   tempIntentionData.reference = formData.get("reference");
+  tempIntentionData.tags = selectedTags.slice(0, 2); // 태그 저장
   if (editingIntentionId) {
     const idx = currentIntentions.findIndex((i) => i.id === editingIntentionId);
     if (idx !== -1)
@@ -1074,4 +1110,125 @@ function showAllTipsModal() {
     }
     window.addEventListener("keydown", escHandler);
   }
+}
+
+// 태그 선택 상태 (2단계 모달용)
+let selectedTags = [];
+
+// 태그 선택 UI 렌더링
+function renderTagSelectArea() {
+  const area = document.getElementById("tagSelectArea");
+  if (!area) return;
+  const tags = getAllTags();
+  area.innerHTML = tags
+    .map(
+      (tag) => `<div class="tag-select-item${
+        selectedTags.some((t) => t.name === tag.name) ? " selected" : ""
+      }" data-tag="${tag.name}" style="border-color:${tag.color};">
+        <span class="tag-color" style="background:${tag.color}"></span>${
+        tag.name
+      }
+        ${
+          customTags.some((t) => t.name === tag.name)
+            ? '<button class="tag-remove-btn" data-remove="' +
+              tag.name +
+              '" title="삭제">×</button>'
+            : ""
+        }
+      </div>`
+    )
+    .join("");
+  // 선택 이벤트
+  area.querySelectorAll(".tag-select-item").forEach((el) => {
+    el.onclick = (e) => {
+      const tagName = el.dataset.tag;
+      const tagObj = getAllTags().find((t) => t.name === tagName);
+      if (!tagObj) return;
+      if (selectedTags.some((t) => t.name === tagName)) {
+        selectedTags = selectedTags.filter((t) => t.name !== tagName);
+      } else {
+        if (selectedTags.length >= 2) return;
+        selectedTags.push(tagObj);
+      }
+      renderTagSelectArea();
+    };
+  });
+  // 커스텀 태그 삭제
+  area.querySelectorAll(".tag-remove-btn").forEach((btn) => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const tagName = btn.dataset.remove;
+      customTags = customTags.filter((t) => t.name !== tagName);
+      selectedTags = selectedTags.filter((t) => t.name !== tagName);
+      renderTagSelectArea();
+    };
+  });
+}
+
+// 커스텀 태그 모달 관련
+const customTagModal = document.getElementById("customTagModal");
+const customTagNameInput = document.getElementById("customTagName");
+const customTagColorPalette = document.getElementById("customTagColorPalette");
+const cancelCustomTagBtn = document.getElementById("cancelCustomTagBtn");
+const saveCustomTagBtn = document.getElementById("saveCustomTagBtn");
+const addTagBtn = document.getElementById("addTagBtn");
+
+const TAG_COLORS = [
+  "#3182f6",
+  "#f59e42",
+  "#6e56cf",
+  "#00b894",
+  "#e74c3c",
+  "#f7b731",
+  "#636e72",
+  "#00b8d9",
+];
+let customTagColor = TAG_COLORS[2];
+
+function openCustomTagModal() {
+  customTagModal.classList.add("show");
+  customTagNameInput.value = "";
+  customTagColor = TAG_COLORS[2];
+  renderColorPalette();
+  setTimeout(() => customTagNameInput.focus(), 100);
+}
+function closeCustomTagModal() {
+  customTagModal.classList.remove("show");
+}
+function renderColorPalette() {
+  customTagColorPalette.innerHTML = TAG_COLORS.map(
+    (color) =>
+      `<div class="color-swatch${
+        customTagColor === color ? " selected" : ""
+      }" data-color="${color}" style="background:${color}"></div>`
+  ).join("");
+  customTagColorPalette.querySelectorAll(".color-swatch").forEach((el) => {
+    el.onclick = () => {
+      customTagColor = el.dataset.color;
+      renderColorPalette();
+    };
+  });
+}
+addTagBtn.onclick = openCustomTagModal;
+cancelCustomTagBtn.onclick = closeCustomTagModal;
+saveCustomTagBtn.onclick = function () {
+  const name = customTagNameInput.value.trim();
+  if (!name || getAllTags().some((t) => t.name === name)) {
+    customTagNameInput.focus();
+    return;
+  }
+  customTags.push({ name, color: customTagColor });
+  closeCustomTagModal();
+  renderTagSelectArea();
+};
+
+// 2단계 모달 열릴 때 태그 선택 초기화 및 렌더
+function openMetaModalWithTags(initTags) {
+  selectedTags = Array.isArray(initTags) ? [...initTags] : [];
+  renderTagSelectArea();
+  metaModal.classList.add("show");
+  setTimeout(() => {
+    const first = metaForm.querySelector("input, textarea");
+    if (first) first.focus();
+  }, 100);
 }

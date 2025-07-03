@@ -235,6 +235,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
+    position: relative;
 }
 
 .card-title {
@@ -245,6 +246,13 @@ body {
     line-height: 1.4;
 }
 
+/* 프로젝트명+태그 한 줄 정렬 */
+.card-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
 .card-project {
     font-size: 12px;
     font-weight: 500;
@@ -253,6 +261,13 @@ body {
     padding: 4px 8px;
     border-radius: 4px;
     display: inline-block;
+    margin-right: 8px;
+}
+.card-tags {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 0;
 }
 
 .card-date {
@@ -309,7 +324,188 @@ body {
     align-items: center;
 }
 
-.card-tags, .card-tag, .tag-item { display: none !important; }
+.card-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 16px;
+    background: #f1f3f5;
+    color: #495057;
+    border: 1.5px solid #e9ecef;
+    transition: background 0.2s, border 0.2s;
+    cursor: default;
+    user-select: none;
+    line-height: 1.6;
+}
+
+.card-tag .tag-color {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid #dee2e6;
+}
+
+/* 태그 선택 영역 */
+#tagSelectArea {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tag-select-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px 4px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 16px;
+    background: #f8f9fa;
+    color: #495057;
+    border: 1.5px solid #e9ecef;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: background 0.2s, border 0.2s;
+    position: relative;
+}
+
+.tag-select-item.selected {
+    background: #3182f6;
+    color: #fff;
+    border-color: #3182f6;
+}
+
+.tag-select-item .tag-color {
+    margin-right: 6px;
+}
+
+.tag-select-item .tag-remove-btn {
+    margin-left: 6px;
+    font-size: 13px;
+    color: #adb5bd;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 2px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.tag-select-item .tag-remove-btn:hover {
+    background: #f1f3f5;
+    color: #495057;
+}
+
+/* 커스텀 태그 추가 버튼 */
+#addTagBtn {
+    margin-top: 16px;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 16px;
+    background: #fff;
+    color: #3182f6;
+    border: 1.5px solid #3182f6;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    position: absolute;
+    left: 24px;
+    bottom: 24px;
+    z-index: 2;
+}
+#addTagBtn:hover {
+    background: #3182f6;
+    color: #fff;
+}
+
+/* 커스텀 태그 생성 모달(간단) */
+#customTagModal {
+    display: none;
+    position: fixed;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.18);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+}
+#customTagModal.show {
+    display: flex;
+}
+.custom-tag-modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px 28px 24px;
+    min-width: 320px;
+    box-shadow: 0 4px 24px rgba(49,130,246,0.10);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+}
+.custom-tag-modal-content h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.custom-tag-modal-content label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.custom-tag-modal-content input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+.custom-tag-modal-content .color-palette {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.custom-tag-modal-content .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #e9ecef;
+    cursor: pointer;
+    transition: border 0.2s;
+}
+.custom-tag-modal-content .color-swatch.selected {
+    border: 2.5px solid #3182f6;
+}
+.custom-tag-modal-content .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+.custom-tag-modal-content .btn {
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background: #3182f6;
+    color: #fff;
+    transition: background 0.2s;
+}
+.custom-tag-modal-content .btn.cancel {
+    background: #f1f3f5;
+    color: #495057;
+}
+.custom-tag-modal-content .btn.cancel:hover {
+    background: #e9ecef;
+}
+.custom-tag-modal-content .btn:hover {
+    background: #1c64f2;
+}
 
 .card-actions {
     display: flex;
